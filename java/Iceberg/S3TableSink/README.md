@@ -50,7 +50,7 @@ The application must have IAM permissions to:
 When running on Amazon Managed Service for Apache Flink the runtime configuration is read from runtime properties. Make sure that you pass the mandatory parameter `table.bucket.arn`. 
 
 When running locally, the configuration is read from the
-[resources/flink-application-properties-dev.json](./src/main/resources/flink-application-properties-dev.json) file. Make sure that the scope of the dependencides in `pom.xml` is set to `default`when running locally. 
+[resources/flink-application-properties-dev.json](./src/main/resources/flink-application-properties-dev.json) file. Make sure that the scope of the dependencides in `pom.xml` is set to `compile`when running locally. 
 
 Runtime parameters:
 
