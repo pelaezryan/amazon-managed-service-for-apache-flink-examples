@@ -26,7 +26,7 @@ public class IcebergSinkBuilder {
     private static final String DEFAULT_S3_CATALOG_DB = "default";
     private static final String DEFAULT_ICEBERG_TABLE_NAME = "prices_iceberg";
     private static final String DEFAULT_ICEBERG_PARTITION_FIELDS = "symbol";
-    private static final String DEFAULT_ICEBERG_OPERATION = "upsert";
+    private static final String DEFAULT_ICEBERG_OPERATION = "append";
     private static final String DEFAULT_ICEBERG_UPSERT_FIELDS = "symbol";
 
     /**

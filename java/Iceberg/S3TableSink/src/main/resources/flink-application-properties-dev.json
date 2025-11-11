@@ -9,7 +9,7 @@
     "PropertyGroupId": "Iceberg",
     "PropertyMap": {
 
-      "table.bucket.arn": "your-table-arn",
+      "table.bucket.arn": "<your-table-arn>",
       "catalog.db": "default",
       "catalog.table": "prices_s3table",
       "partition.fields": "symbol",

@@ -80,7 +80,7 @@ public class StreamingJob {
         }
 
         Map<String, Properties> applicationProperties = loadApplicationProperties(env);
-        icebergProperties = applicationProperties.get("Iceberg");
+        icebergProperties = applicationProperties.getOrDefault("Iceberg", new Properties());
 
         // Get AVRO Schema from the definition bundled with the application
         // Note that the application must "knows" the AVRO schema upfront, i.e. the schema must be either embedded
@@ -107,7 +107,7 @@ public class StreamingJob {
     }
 
     private static DataStream<GenericRecord> createDataStream(StreamExecutionEnvironment env, Map<String, Properties> applicationProperties, Schema avroSchema) {
-        Properties dataGeneratorProperties = applicationProperties.get("DataGen");
+        Properties dataGeneratorProperties = applicationProperties.getOrDefault("DataGen", new Properties());
         return env.fromSource(
                 createDataGenerator(dataGeneratorProperties, avroSchema),
                 WatermarkStrategy.noWatermarks(),
