@@ -25,10 +25,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <!-- Get the latest SDK version from https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-bom -->
-                <version>1.12.677</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.20.162</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -82,6 +81,7 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-aws-kinesis-streams</artifactId>
             <version>${aws.connector.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Add logging framework, to produce console output when running in the IDE. -->
@@ -155,7 +155,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.amazonaws.services.msf.StreamingJob</mainClass>
+                                    <mainClass>com.amazonaws.services.msf.StandaloneKinesisJob</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
