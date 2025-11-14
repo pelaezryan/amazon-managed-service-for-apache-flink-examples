@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 public class StreamingJob {
@@ -58,7 +59,7 @@ public class StreamingJob {
         double recordsPerSecond = Double.parseDouble(generatorProperties.getProperty("records.per.sec", "10.0"));
         Preconditions.checkArgument(recordsPerSecond > 0, "Generator records per sec must be > 0");
 
-        LOG.info("Data generator: {} record/sec", recordsPerSecond);
+        LOG.info("Data generator: {} record/sec", Optional.of(recordsPerSecond));
         return new DataGeneratorSource<>(
                 new AvroGenericStockTradeGeneratorFunction(avroSchema),
                 Long.MAX_VALUE,
@@ -79,7 +80,7 @@ public class StreamingJob {
         }
 
         Map<String, Properties> applicationProperties = loadApplicationProperties(env);
-        icebergProperties = applicationProperties.get("Iceberg");
+        icebergProperties = applicationProperties.getOrDefault("Iceberg", new Properties());
 
         // Get AVRO Schema from the definition bundled with the application
         // Note that the application must "knows" the AVRO schema upfront, i.e. the schema must be either embedded
@@ -98,6 +99,7 @@ public class StreamingJob {
 
         // Flink Sink Builder
         FlinkSink.Builder icebergSinkBuilder = IcebergSinkBuilder.createBuilder(icebergProperties, genericRecordDataStream, avroSchema);
+
         // Sink to Iceberg Table
         icebergSinkBuilder.append();
 
@@ -105,7 +107,7 @@ public class StreamingJob {
     }
 
     private static DataStream<GenericRecord> createDataStream(StreamExecutionEnvironment env, Map<String, Properties> applicationProperties, Schema avroSchema) {
-        Properties dataGeneratorProperties = applicationProperties.get("DataGen");
+        Properties dataGeneratorProperties = applicationProperties.getOrDefault("DataGen", new Properties());
         return env.fromSource(
                 createDataGenerator(dataGeneratorProperties, avroSchema),
                 WatermarkStrategy.noWatermarks(),

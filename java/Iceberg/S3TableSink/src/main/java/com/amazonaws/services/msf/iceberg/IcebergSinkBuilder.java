@@ -12,6 +12,7 @@ import org.apache.iceberg.avro.AvroSchemaUtil;
 import org.apache.iceberg.catalog.Catalog;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.*;
+import org.apache.iceberg.io.FileIO;
 import org.apache.iceberg.flink.sink.AvroGenericRecordToRowDataMapper;
 import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.iceberg.flink.util.FlinkCompatibilityUtil;
@@ -25,7 +26,7 @@ public class IcebergSinkBuilder {
     private static final String DEFAULT_S3_CATALOG_DB = "default";
     private static final String DEFAULT_ICEBERG_TABLE_NAME = "prices_iceberg";
     private static final String DEFAULT_ICEBERG_PARTITION_FIELDS = "symbol";
-    private static final String DEFAULT_ICEBERG_OPERATION = "upsert";
+    private static final String DEFAULT_ICEBERG_OPERATION = "append";
     private static final String DEFAULT_ICEBERG_UPSERT_FIELDS = "symbol";
 
     /**
