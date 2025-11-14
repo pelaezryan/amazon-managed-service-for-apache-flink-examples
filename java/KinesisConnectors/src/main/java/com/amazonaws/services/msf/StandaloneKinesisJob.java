@@ -11,28 +11,69 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StandaloneKinesisJob {
     private static final Logger LOG = LoggerFactory.getLogger(StandaloneKinesisJob.class);
+    private static final String CONFIG_FILE = "flink-application-properties-dev.json";
+
+    private static Properties loadPropertiesFromJson(String propertyGroupId) throws Exception {
+        Properties properties = new Properties();
+        
+        try (InputStream inputStream = StandaloneKinesisJob.class.getClassLoader().getResourceAsStream(CONFIG_FILE);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            
+            if (inputStream == null) {
+                throw new RuntimeException("Configuration file not found: " + CONFIG_FILE);
+            }
+            
+            StringBuilder jsonContent = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonContent.append(line);
+            }
+            
+            String json = jsonContent.toString();
+            
+            // Simple regex parsing to find the PropertyGroup
+            Pattern groupPattern = Pattern.compile("\"PropertyGroupId\"\\s*:\\s*\"" + propertyGroupId + "\".*?\"PropertyMap\"\\s*:\\s*\\{([^}]+)\\}");
+            Matcher groupMatcher = groupPattern.matcher(json);
+            
+            if (groupMatcher.find()) {
+                String propertyMapContent = groupMatcher.group(1);
+                
+                // Parse key-value pairs
+                Pattern kvPattern = Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"([^\"]+)\"");
+                Matcher kvMatcher = kvPattern.matcher(propertyMapContent);
+                
+                while (kvMatcher.find()) {
+                    String key = kvMatcher.group(1);
+                    String value = kvMatcher.group(2);
+                    properties.setProperty(key, value);
+                }
+            }
+        }
+        
+        // Map source.init.position to flink.stream.initpos for source config
+        if (properties.containsKey("source.init.position")) {
+            properties.setProperty("flink.stream.initpos", properties.getProperty("source.init.position"));
+        }
+        
+        LOG.info("Loaded configuration for {}: {}", propertyGroupId, properties);
+        return properties;
+    }
 
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         
-        // Configure input stream properties
-        Properties inputProperties = new Properties();
-        inputProperties.setProperty("stream.arn", "arn:aws:kinesis:us-east-1:123456789012:stream/test-flink-upstream-stream");
-        inputProperties.setProperty("aws.region", "us-east-1");
-        inputProperties.setProperty("flink.stream.initpos", "LATEST");
-        
-        // Configure output stream properties with aggressive flush settings
-        Properties outputProperties = new Properties();
-        outputProperties.setProperty("stream.arn", "arn:aws:kinesis:us-east-1:123456789012:stream/test-flink-downstream-stream");
-        outputProperties.setProperty("aws.region", "us-east-1");
-        outputProperties.setProperty("collection.max.count", "1");
-        outputProperties.setProperty("aggregation.enabled", "false");
-        outputProperties.setProperty("collection.max.size", "1");
-        outputProperties.setProperty("flush.sync", "true");
+        // Load stream configurations from JSON file
+        Properties inputProperties = loadPropertiesFromJson("InputStream0");
+        Properties outputProperties = loadPropertiesFromJson("OutputStream0");
 
         // Create Kinesis source
         KinesisStreamsSource<String> source = KinesisStreamsSource.<String>builder()

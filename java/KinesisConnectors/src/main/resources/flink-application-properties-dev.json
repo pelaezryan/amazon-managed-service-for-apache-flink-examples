@@ -2,7 +2,7 @@
   {
     "PropertyGroupId": "InputStream0",
     "PropertyMap": {
-      "stream.arn": "arn:aws:kinesis:us-east-1:<account-id>:stream/ExampleInputStream",
+      "stream.arn": "arn:aws:kinesis:us-east-1:123456789012:stream/test-flink-upstream-stream",
       "source.init.position": "LATEST",
       "aws.region": "us-east-1"
     }
@@ -10,8 +10,12 @@
   {
     "PropertyGroupId": "OutputStream0",
     "PropertyMap": {
-      "stream.arn": "arn:aws:kinesis:us-east-1:<account-id>:stream/ExampleOutputStream",
-      "aws.region": "us-east-1"
+      "stream.arn": "arn:aws:kinesis:us-east-1:123456789012:stream/test-flink-downstream-stream",
+      "aws.region": "us-east-1",
+      "collection.max.count": "1",
+      "aggregation.enabled": "false",
+      "collection.max.size": "1",
+      "flush.sync": "true"
     }
   }
 ]
